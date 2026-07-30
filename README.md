@@ -274,10 +274,13 @@ Key lessons included:
 
 # Author
 
-**Ann Wangari Githinji**
+**Ann Githinji**
 
-- GitHub: *Add your GitHub profile link*
-- LinkedIn: *Add your LinkedIn profile link*
+AWS Certified Cloud Practitioner
+
+AWS Certified Solutions Architect – Associate
+
+Cloud Solutions | AWS | Cloud Security | Infrastructure | Automation
 
 ---
 
