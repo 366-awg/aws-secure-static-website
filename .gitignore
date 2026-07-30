@@ -1,0 +1,56 @@
+# ==========================
+# Operating System Files
+# ==========================
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ==========================
+# Visual Studio Code
+# ==========================
+
+.vscode/
+
+# ==========================
+# JetBrains IDEs
+# ==========================
+
+.idea/
+
+# ==========================
+# Logs
+# ==========================
+
+*.log
+
+# ==========================
+# Temporary Files
+# ==========================
+
+*.tmp
+*.temp
+
+# ==========================
+# Environment Variables
+# ==========================
+
+.env
+.env.*
+
+# ==========================
+# AWS Credentials (Never Commit)
+# ==========================
+
+.aws/
+credentials
+config
+
+# ==========================
+# Terraform (Future Use)
+# ==========================
+
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
