@@ -8,81 +8,115 @@
   </p>
 </p>
 
-# AWS Static Portfolio Website Hosting Architecture
+# Secure Static Portfolio Website Hosting on AWS
 
-> A serverless static website hosting solution built on Amazon Web Services (AWS) using Amazon S3 and Amazon CloudFront, with detailed architecture documentation and deployment guidance.
+> A secure, serverless static website hosting solution built on Amazon Web Services (AWS) using **Amazon CloudFront**, a **private Amazon S3 bucket**, and **Origin Access Control (OAC)**. This repository documents the architecture, deployment process, security implementation, and operational considerations behind the solution.
 
 ![AWS](https://img.shields.io/badge/AWS-Cloud-orange)
-
 ![Amazon S3](https://img.shields.io/badge/Amazon-S3-red)
-
-![CloudFront](https://img.shields.io/badge/Amazon-CloudFront-blue)
-
+![Amazon CloudFront](https://img.shields.io/badge/Amazon-CloudFront-blue)
 ![HTML](https://img.shields.io/badge/HTML-5-orange)
-
 ![CSS](https://img.shields.io/badge/CSS-3-blue)
-
 ![License](https://img.shields.io/badge/License-MIT-green)
-
 ![Status](https://img.shields.io/badge/Status-Completed-success)
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Project Objectives](#project-objectives)
-- [Solution Architecture](#solution-architecture)
-- [Architecture Diagram](#architecture-diagram)
-- [Architecture Overview](#architecture-overview)
-- [Request Flow](#request-flow)
-- [AWS Services Used](#aws-services-used)
-- [Key Features](#key-features)
-- [Repository Structure](#repository-structure)
-- [Documentation](#documentation)
-- [AWS Well-Architected Framework Alignment](#aws-well-architected-framework-alignment)
-- [Screenshots](#screenshots)
-- [Lessons Learned](#lessons-learned)
-- [Future Improvements](#future-improvements)
-- [Author](#author)
-- [License](#license)
-
-## Project Overview
-
-This project demonstrates the design and deployment of a static portfolio website on Amazon Web Services (AWS) using a serverless architecture. The solution leverages Amazon Simple Storage Service (Amazon S3) for static website hosting and Amazon CloudFront as a Content Delivery Network (CDN) to deliver website content with improved performance and reduced latency.
-
-The project was developed to gain hands-on experience with AWS cloud services while applying architectural best practices for static website hosting. In addition to deploying the website, this repository documents the architecture, deployment process, design decisions, security enhancements, cost optimization strategies, and lessons learned throughout the implementation.
-
-The solution incorporates Amazon S3 Versioning to improve data resilience and Server-Side Encryption using Amazon S3 managed keys (SSE-S3) to automatically encrypt objects at rest. These enhancements improve the reliability and security of the storage layer while maintaining a cost-effective, serverless architecture.
-
-This repository serves as both technical documentation and a portfolio project demonstrating foundational AWS cloud architecture concepts.
 
 ---
 
-## Project Objectives
+# Table of Contents
+
+* [Project Overview](#project-overview)
+* [Project Objectives](#project-objectives)
+* [Solution Architecture](#solution-architecture)
+* [Architecture Diagram](#architecture-diagram)
+* [Architecture Overview](#architecture-overview)
+* [Request Flow](#request-flow)
+* [Key Features](#key-features)
+* [Repository Structure](#repository-structure)
+* [Documentation](#documentation)
+* [AWS Well-Architected Framework Alignment](#aws-well-architected-framework-alignment)
+* [Screenshots](#screenshots)
+* [Lessons Learned](#lessons-learned)
+* [Future Improvements](#future-improvements)
+* [Author](#author)
+* [License](#license)
+
+---
+
+# Project Overview
+
+This project demonstrates the design and deployment of a secure, serverless static website architecture on Amazon Web Services (AWS).
+
+Website assets are stored in a **private Amazon S3 bucket** and delivered globally through **Amazon CloudFront**. Access between CloudFront and Amazon S3 is secured using **Origin Access Control (OAC)**, ensuring that website objects cannot be accessed directly from Amazon S3.
+
+The project was developed to gain practical experience with AWS cloud architecture while implementing modern security best practices for static website hosting.
+
+Additional security and reliability enhancements include:
+
+* Amazon S3 Versioning
+* Server-Side Encryption using Amazon S3 Managed Keys (SSE-S3)
+* Block Public Access
+* Origin Access Control (OAC)
+* HTTPS content delivery through Amazon CloudFront
+
+This repository serves as both a technical reference and a portfolio project demonstrating practical AWS cloud architecture skills.
+
+User
+    │
+    ▼
+Amazon CloudFront
+    │
+Origin Access Control (OAC)
+    │
+    ▼
+Private Amazon S3 Bucket
+
+---
+
+# Live Demo
+
+The deployed website is accessible through the Amazon CloudFront distribution.
+
+> https://dozdnjx062oel.cloudfront.net
+
+# Project Highlights
+
+- Secure serverless static website architecture
+- Private Amazon S3 bucket protected by Origin Access Control (OAC)
+- Global content delivery through Amazon CloudFront
+- Block Public Access enabled
+- Amazon S3 Versioning for object recovery
+- Server-Side Encryption (SSE-S3)
+- HTTPS content delivery
+- Comprehensive technical documentation
+
+# Project Objectives
 
 The objectives of this project were to:
 
-- Design and deploy a static portfolio website using AWS managed services.
-- Gain practical experience with Amazon S3 static website hosting.
-- Improve website performance using Amazon CloudFront.
-- Apply selected AWS Well-Architected Framework principles.
-- Implement object versioning for improved data protection.
-- Protect stored objects using Server-Side Encryption (SSE-S3).
-- Document the deployment process in a structured and reproducible manner.
-- Build a professional cloud portfolio project demonstrating practical AWS skills.
+* Design and deploy a secure serverless static website architecture.
+* Implement a private Amazon S3 bucket protected by Origin Access Control (OAC).
+* Deliver website content globally using Amazon CloudFront.
+* Improve website performance through edge caching.
+* Implement Amazon S3 Versioning for data protection.
+* Encrypt stored objects using Server-Side Encryption (SSE-S3).
+* Apply AWS Well-Architected Framework principles.
+* Produce professional technical documentation covering architecture, deployment, security, and operational considerations.
 
 ---
 
 # Solution Architecture
 
-The solution uses a fully managed, serverless architecture for hosting static web content.
+The solution follows a fully managed, serverless architecture.
 
-When a user requests the website, the request is routed through Amazon CloudFront. CloudFront retrieves website content stored in Amazon S3 and caches it at AWS edge locations to reduce latency for future requests.
+Users access the website through Amazon CloudFront. If the requested content is already cached at an AWS Edge Location, CloudFront returns it immediately.
 
-The website consists entirely of static assets including HTML, CSS, images, and other client-side resources, eliminating the need for application servers or databases.
+If the object is not cached, CloudFront securely retrieves it from the private Amazon S3 bucket using **Origin Access Control (OAC)**. The request is authenticated using AWS Signature Version 4 (SigV4), preventing direct public access to the storage layer.
+
+Because the application consists entirely of static assets—including HTML, CSS, JavaScript, images, and icons—no web servers, application servers, or databases are required.
 
 ---
 
-## Architecture Diagram
+# Architecture Diagram
 
 <p align="center">
   <img src="architecture/architecture.png" alt="AWS Architecture Diagram" width="900">
@@ -90,107 +124,94 @@ The website consists entirely of static assets including HTML, CSS, images, and 
 
 ---
 
-## Architecture Overview
+# Architecture Overview
 
-The architecture consists of the following AWS services:
+## Amazon S3
 
-### Amazon S3
+Amazon S3 stores all website assets in a private bucket.
 
-Amazon S3 serves as the origin for the static website and stores all website assets including:
+The bucket is configured with:
 
-- HTML files
-- CSS stylesheets
-- Images
-- Static resources
-
-The bucket has:
-
-- Static Website Hosting enabled
-- Bucket Versioning enabled
-- Default Server-Side Encryption (SSE-S3) enabled
-- Public read access configured to support static website hosting
+* Block Public Access enabled
+* Bucket Owner Enforced object ownership
+* Bucket Versioning enabled
+* Server-Side Encryption (SSE-S3)
+* Private origin accessible only through Amazon CloudFront
 
 ---
 
-### Amazon CloudFront
+## Amazon CloudFront
 
-Amazon CloudFront provides global content delivery by caching website content at AWS edge locations.
+Amazon CloudFront serves as the public entry point for the website.
 
-Its responsibilities include:
+Responsibilities include:
 
-- Faster content delivery
-- Reduced latency
-- Improved user experience
-- Reduced load on the S3 origin
-- Global content distribution
-
----
-
-### AWS Identity and Access Management (IAM)
-
-The project was deployed using an AWS IAM Administrator user following AWS security best practices by avoiding use of the root account for everyday administrative tasks.
+* Global content delivery
+* Edge caching
+* HTTPS content delivery
+* Reduced latency
+* Improved performance
+* Secure communication with Amazon S3 using Origin Access Control (OAC)
 
 ---
 
-## Request Flow
+## AWS Identity and Access Management (IAM)
 
-The following sequence describes how users access the hosted website:
+Deployment and administration were performed using an IAM Administrator user.
 
-1. A user enters the website URL.
-2. The request is received by Amazon CloudFront.
-3. CloudFront checks whether the requested content is available in its cache.
-4. If the content is cached, CloudFront immediately returns the response.
-5. If the content is not cached, CloudFront retrieves the requested object from the Amazon S3 website endpoint.
-6. Amazon S3 returns the requested object.
-7. CloudFront caches the object for future requests.
-8. CloudFront returns the website content to the user.
+The AWS account root user was not used for routine administrative activities, following AWS security best practices.
 
 ---
 
-# AWS Services Used
+# Request Flow
 
-| AWS Service | Role in the Architecture |
-|-------------|---------|
-| Amazon S3 | Stores and hosts the static website files. |
-| Amazon CloudFront | Delivers website content globally with edge caching. |
-| AWS IAM | Provides secure administrative access to AWS resources. |
+1. A user requests the website.
+2. Amazon CloudFront receives the request.
+3. CloudFront checks whether the requested object is already cached.
+4. If cached, CloudFront immediately returns the object.
+5. If not cached, CloudFront signs the origin request using Origin Access Control (OAC).
+6. Amazon S3 validates the signed request.
+7. Amazon S3 returns the requested object.
+8. CloudFront caches the object.
+9. CloudFront delivers the object securely to the user over HTTPS.
 
 ---
 
 # Key Features
 
-- Static website hosting using Amazon S3
-- Global content delivery using Amazon CloudFront
-- Fully serverless architecture
-- Amazon S3 Versioning enabled
-- Server-Side Encryption (SSE-S3) enabled
-- Low operational overhead
-- Cost-effective hosting solution
-- Deployment using AWS Management Console
-- Comprehensive project documentation
+* Secure serverless architecture
+* Private Amazon S3 bucket
+* Amazon CloudFront Content Delivery Network (CDN)
+* Origin Access Control (OAC)
+* Block Public Access
+* HTTPS content delivery
+* Amazon S3 Versioning
+* Server-Side Encryption (SSE-S3)
+* Low operational overhead
+* Cost-effective hosting solution
+* Comprehensive technical documentation
 
 ---
 
 # Repository Structure
 
-```
+```text
 aws-static-portfolio-hosting/
 │
 ├── architecture/
-│   ├── architecture.png               # Solution architecture diagram
-│   ├── architecture-description.md    # Architecture explanation
-│   └── request-flow.md                # Request lifecycle
+│   ├── architecture.png
+│   ├── architecture-description.md
+│   └── request-flow.md
 │
 ├── deployment/
-│   ├── deployment-guide.md            # Deployment steps
-│   ├── aws-services-used.md           # Service descriptions
-│   └── configuration.md               # Configuration details
+│   ├── deployment-guide.md
+│   └── configuration.md
 │
 ├── security/
-│   └── security.md                    # Security controls
+│   └── security.md
 │
 ├── cost/
-│   └── cost-estimation.md             # Cost optimization
+│   └── cost-estimation.md
 │
 ├── screenshots/
 │
@@ -203,84 +224,124 @@ aws-static-portfolio-hosting/
 
 # Documentation
 
-This repository contains detailed technical documentation for each aspect of the project.
+The project documentation is organized into focused technical references covering the architecture, deployment, configuration, security, request flow, and operational considerations of the solution.
 
-| Document | Description |
-|----------|-------------|
-| Architecture Description | Explains each architectural component |
-| Request Flow | Describes how requests travel through the architecture |
-| Deployment Guide | Step-by-step deployment instructions |
-| AWS Services Used | Overview of AWS services and their responsibilities |
-| Configuration | Key AWS configuration decisions |
-| Security | Security controls and implementation details |
-| Cost Estimation | Cost considerations and optimization |
-| Lessons Learned | Technical insights gained during the project |
+| Document                 | Description                                      |
+| ------------------------ | ------------------------------------------------ |
+| Architecture Description | Overview of the solution architecture            |
+| Request Flow             | End-to-end request lifecycle                     |
+| Deployment Guide         | Deployment process and validation                |
+| AWS Services Used        | Description of each AWS service                  |
+| Configuration Reference  | Final AWS resource configuration                 |
+| Security Review          | Security controls and assessment                 |
+| Cost Estimation          | Cost drivers and optimization                    |
+| Lessons Learned          | Technical insights gained throughout the project |
 
 ---
 
 # AWS Well-Architected Framework Alignment
 
-| Pillar | Implementation |
-|---------|---------------|
-| Operational Excellence | Structured documentation and repeatable deployment process |
-| Security | IAM administration, Server-Side Encryption (SSE-S3), AWS managed services |
-| Reliability | Amazon S3 durability, Versioning, CloudFront global infrastructure |
-| Performance Efficiency | CloudFront edge caching for low-latency content delivery |
-| Cost Optimization | Fully serverless architecture with managed AWS services |
-| Sustainability | Efficient resource utilization through managed cloud infrastructure |
+| Pillar                 | Implementation                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------ |
+| Operational Excellence | Structured documentation and repeatable deployment process                                             |
+| Security               | IAM administration, Private Amazon S3, Block Public Access, Origin Access Control (OAC), SSE-S3, HTTPS |
+| Reliability            | Amazon S3 durability, Versioning, CloudFront global infrastructure                                     |
+| Performance Efficiency | CloudFront edge caching and global content delivery                                                    |
+| Cost Optimization      | Fully managed serverless architecture                                                                  |
+| Sustainability         | Efficient utilization of managed AWS infrastructure                                                    |
 
 ---
 
 # Screenshots
 
-The repository includes screenshots documenting the deployment process, including:
+## Live Portfolio Website
 
-- Amazon S3 bucket configuration
-- Static Website Hosting configuration
-- Bucket Versioning
-- Server-Side Encryption settings
-- CloudFront distribution
-- Live portfolio website
+Demonstrates the successfully deployed static website accessible through Amazon CloudFront.
+
+![Live Website](screenshots/01-live-website.png)
+
+---
+
+## Amazon CloudFront Distribution
+
+Shows the deployed CloudFront distribution responsible for global content delivery.
+
+![CloudFront Distribution](screenshots/02-cloudfront-distribution.png)
+
+---
+
+## Amazon S3 Bucket Configuration
+
+Shows the private Amazon S3 bucket used as the CloudFront origin.
+
+![S3 Bucket](screenshots/05-s3-bucket-overview.png)
+
+---
+
+## Origin Access Control (OAC)
+
+Demonstrates that Amazon CloudFront securely accesses the private Amazon S3 bucket using Origin Access Control (OAC).
+
+![Origin Access Control](screenshots/04-origin-access-control.png)
 
 ---
 
 # Lessons Learned
 
-This project provided practical experience in designing and deploying a serverless static website architecture on AWS.
+This project provided practical experience in designing and deploying a secure serverless architecture on AWS.
 
 Key lessons included:
 
-- Configuring Amazon S3 for static website hosting.
-- Using Amazon CloudFront to improve website performance.
-- Understanding the importance of Versioning for data recovery.
-- Implementing encryption at rest using SSE-S3.
-- Applying AWS security best practices during deployment.
-- Documenting cloud architecture in a professional and reproducible manner.
+* Designing secure static website architectures
+* Configuring Amazon CloudFront with Origin Access Control (OAC)
+* Securing Amazon S3 using Block Public Access
+* Writing bucket policies for CloudFront
+* Implementing Server-Side Encryption (SSE-S3)
+* Using Amazon S3 Versioning for improved recoverability
+* Understanding CloudFront edge caching
+* Managing CloudFront cache invalidations
+* Understanding secure origin access using Amazon CloudFront
+* Applying AWS security best practices for static website hosting
+* Producing professional cloud architecture documentation
 
 ---
 
-## Future Improvements
 
-- [ ] Migrate to Origin Access Control (OAC)
-- [ ] Configure a private Amazon S3 bucket
-- [ ] Register a custom domain using Amazon Route 53
-- [ ] Add HTTPS using AWS Certificate Manager (ACM)
-- [ ] Automate deployment using Terraform
-- [ ] Build CI/CD with GitHub Actions
-- [ ] Implement AWS CloudWatch monitoring
-- [ ] Protect the application using AWS WAF
+# Future Improvements
+
+* [ ] Register a custom domain using Amazon Route 53
+* [ ] Configure AWS Certificate Manager (ACM) for the custom domain
+* [ ] Automate infrastructure provisioning using Terraform
+* [ ] Implement CI/CD using GitHub Actions
+* [ ] Enable AWS Web Application Firewall (AWS WAF)
+* [ ] Configure Amazon CloudWatch monitoring
+* [ ] Enable AWS CloudTrail logging
+* [ ] Enable CloudFront access logging
+* [ ] Implement AWS Config compliance monitoring
 
 ---
+
+# Technical Skills Demonstrated
+
+- Amazon S3
+- Amazon CloudFront
+- Origin Access Control (OAC)
+- AWS Identity and Access Management (IAM)
+- Server-Side Encryption (SSE-S3)
+- Amazon S3 Versioning
+- Cloud Architecture
+- Static Website Hosting
+- AWS Security Best Practices
+- Technical Documentation
 
 # Author
 
 **Ann Githinji**
 
-AWS Certified Cloud Practitioner
+* AWS Certified Cloud Practitioner
+* AWS Certified Solutions Architect – Associate
 
-AWS Certified Solutions Architect – Associate
-
-Cloud Solutions | AWS | Cloud Security | Infrastructure | Automation
+**Cloud Computing • AWS • Cloud Architecture • Cloud Security • Infrastructure as Code**
 
 ---
 
