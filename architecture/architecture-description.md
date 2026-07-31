@@ -4,7 +4,7 @@
 
 This document provides a detailed explanation of the architecture used to host the portfolio website on Amazon Web Services (AWS). The solution adopts a serverless architecture that uses fully managed AWS services to deliver static web content with minimal operational overhead.
 
-The architecture is intentionally designed to demonstrate foundational cloud engineering concepts, including static website hosting, global content delivery, object versioning, data encryption, and Identity and Access Management (IAM). By relying on managed services instead of traditional web servers, the solution remains simple to operate, scalable, and cost-effective.
+The architecture is intentionally designed to demonstrate foundational cloud engineering concepts, including secure static content hosting, global content delivery, object versioning, data encryption, and Identity and Access Management (IAM). By relying on fully managed AWS services, while following AWS best practices for hosting static web applications.
 
 ---
 
@@ -18,7 +18,7 @@ The architecture is intentionally designed to demonstrate foundational cloud eng
 
 ## Architectural Design
 
-The architecture consists of three primary components that work together to deliver the website to end users.
+The solution consists of three primary AWS components that work together to securely deliver static website content to end users.
 
 ```
 User
@@ -27,12 +27,12 @@ User
 Amazon CloudFront
    │
    ▼
-Amazon S3 Static Website Hosting
+Amazon S3 Bucket
 ```
 
-A user's request is first received by Amazon CloudFront. If the requested content is already cached at an edge location, CloudFront serves it immediately. Otherwise, CloudFront retrieves the object from the Amazon S3 website endpoint, caches it, and returns it to the user.
+A user's request is first received by Amazon CloudFront. If the requested content is already cached at an edge location, CloudFront serves it immediately. Otherwise, CloudFront securely retrieves the requested object from the Amazon S3 bucket, caches it at the edge location, and returns it to the user.
 
-This approach reduces latency while minimizing requests to the origin.
+This architecture improves performance while restricting direct public access to the origin through Amazon CloudFront.
 
 ---
 
@@ -58,10 +58,10 @@ Because the website does not require server-side processing or a database, Amazo
 
 The S3 bucket is configured with:
 
-- Static Website Hosting enabled
 - Bucket Versioning enabled
 - Default Server-Side Encryption (SSE-S3) enabled
-- Public read access for website objects
+- Static website assets stored as objects
+- A bucket policy that permits object access only from the associated Amazon CloudFront distribution
 
 ### Why Amazon S3?
 
@@ -72,7 +72,7 @@ Amazon S3 was selected because it provides:
 - Low operational overhead
 - Automatic scalability
 - Cost-effective object storage
-- Native support for static website hosting
+- Secure integration with Amazon CloudFront as a private origin
 
 ---
 
@@ -82,7 +82,7 @@ Amazon S3 was selected because it provides:
 
 Amazon CloudFront functions as the Content Delivery Network (CDN) for the website.
 
-Instead of users accessing the Amazon S3 bucket directly, requests are routed through CloudFront, which caches website content at AWS edge locations around the world.
+Amazon CloudFront serves as the public entry point for the website. User requests are routed through CloudFront, which securely retrieves objects from the Amazon S3 bucket when they are not already cached at an edge location. This approach improves performance while preventing direct public access to the origin.
 
 ### Responsibilities
 
@@ -93,15 +93,17 @@ CloudFront improves the solution by:
 - Caching frequently requested content
 - Reducing requests to the S3 origin
 - Providing global content distribution
+- Securely accessing the Amazon S3 origin using Origin Access Control (OAC)
 
 ### Why CloudFront?
 
-Using CloudFront provides several advantages over accessing the S3 website endpoint directly:
+Using CloudFront with a private Amazon S3 origin provides several advantages:
 
 - Faster content delivery
 - Better user experience
 - Reduced origin traffic
 - Improved scalability during traffic spikes
+- Prevents direct public access to the Amazon S3 bucket
 
 ---
 
@@ -109,7 +111,7 @@ Using CloudFront provides several advantages over accessing the S3 website endpo
 
 ### Purpose
 
-AWS Identity and Access Management (IAM) was used to securely administer AWS resources during deployment.
+AWS Identity and Access Management (IAM) was used to manage administrative access to the AWS environment throughout deployment and subsequent resource management.
 
 The project was deployed using an IAM Administrator user rather than the AWS root account, following AWS security best practices for day-to-day account management.
 
@@ -127,11 +129,11 @@ This decision reduces operational complexity while eliminating the need to provi
 
 ---
 
-## Static Website Hosting
+## Private Amazon S3 Origin
 
-Amazon S3 Static Website Hosting was chosen instead of running a web server because the application consists entirely of client-side assets.
+The website assets are stored in a private Amazon S3 bucket that serves as the origin for Amazon CloudFront.
 
-This simplifies deployment while reducing both infrastructure management and hosting costs.
+Rather than exposing the bucket directly to the internet, access is restricted through Amazon CloudFront using Origin Access Control (OAC). This approach improves security by ensuring that website content is delivered through the CloudFront distribution rather than by direct access to the S3 bucket.
 
 ---
 
@@ -153,16 +155,16 @@ This provides data protection without requiring additional encryption management
 
 # Security Considerations
 
-Several security practices were incorporated into the architecture.
+The architecture incorporates several security controls designed to protect administrative access, stored data, and the origin infrastructure.
 
 - Administrative tasks were performed using an IAM user instead of the AWS root account.
 - Server-Side Encryption (SSE-S3) protects stored objects at rest.
 - Bucket Versioning improves recoverability of website assets.
 - Amazon CloudFront serves as the primary access point for website content.
 
-Because the architecture uses the Amazon S3 static website endpoint, public read access is required for website objects.
+The Amazon S3 bucket is not publicly accessible. Access to website objects is restricted through a bucket policy that permits requests only from the associated Amazon CloudFront distribution using Origin Access Control (OAC).
 
-For production environments, a more secure architecture would replace the public bucket with a private Amazon S3 bucket protected by Amazon CloudFront Origin Access Control (OAC). This enhancement has been identified as future work for the project.
+This approach follows AWS security best practices by preventing direct access to the origin while ensuring that all website content is delivered through CloudFront.
 
 ---
 
@@ -182,7 +184,7 @@ The architecture benefits from the reliability characteristics of managed AWS se
 
 Amazon S3 provides industry-leading durability for stored objects, while Bucket Versioning improves recoverability in the event of accidental modifications.
 
-CloudFront enhances availability by distributing cached content across multiple edge locations worldwide.
+Amazon CloudFront improves content availability and resilience by serving cached objects from its globally distributed edge network.
 
 ---
 
@@ -198,6 +200,6 @@ Charges are based primarily on object storage, data transfer, and CloudFront req
 
 # Summary
 
-This architecture demonstrates a practical implementation of static website hosting using managed AWS services. By combining Amazon S3 and Amazon CloudFront, the solution delivers a scalable, reliable, and cost-effective hosting platform while incorporating additional capabilities such as object versioning, encryption at rest, and secure account administration through AWS IAM.
+This architecture demonstrates a secure implementation of a serverless static website using managed AWS services. By combining Amazon S3 with Amazon CloudFront and Origin Access Control (OAC), the solution delivers scalable, reliable, and globally distributed content while protecting the origin from direct public access.
 
-Although intentionally simple, the architecture reflects core cloud engineering principles and provides a strong foundation for future enhancements such as private S3 origins, Origin Access Control (OAC), custom domains, HTTPS with AWS Certificate Manager, and Infrastructure as Code (IaC).
+Additional capabilities such as Bucket Versioning, Server-Side Encryption (SSE-S3), and secure administration through AWS IAM further strengthen the overall architecture and align the solution with AWS security and operational best practices.
