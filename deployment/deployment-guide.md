@@ -2,9 +2,9 @@
 
 ## Overview
 
-This document describes the deployment process used to publish the static portfolio website on Amazon Web Services (AWS).
+This document describes the deployment process used to publish the portfolio website on Amazon Web Services (AWS). It documents the sequence of configuration steps required to provision, secure, and validate the hosting environment using fully managed AWS services.
 
-The deployment was performed through the AWS Management Console using managed AWS services. The process consists of configuring Amazon S3 for static website hosting, uploading the website assets, enabling additional storage features, and configuring Amazon CloudFront to distribute content globally.
+The solution was deployed using the AWS Management Console and follows current AWS security best practices by combining Amazon CloudFront with a private Amazon S3 bucket protected by Origin Access Control (OAC). This architecture provides secure, globally distributed delivery of static website content without exposing the Amazon S3 bucket directly to the internet.
 
 ---
 
@@ -12,10 +12,10 @@ The deployment was performed through the AWS Management Console using managed AW
 
 Before deployment, the following requirements were met:
 
-- An active AWS account
-- An IAM Administrator user
-- Static website files (HTML, CSS, images, and other assets)
-- Basic understanding of AWS Management Console navigation
+* An active AWS account
+* An IAM Administrator user
+* Static website assets (HTML, CSS, JavaScript, images, icons, and other supporting files)
+* Permissions to create and manage Amazon S3 and Amazon CloudFront resources
 
 ---
 
@@ -31,98 +31,131 @@ The bucket name was selected to be globally unique.
 
 ## Step 2 – Upload Website Assets
 
-The website files were uploaded to the bucket.
+The static website assets were uploaded to the Amazon S3 bucket, forming the origin content that would later be distributed globally through Amazon CloudFront.
 
 Uploaded assets included:
 
-- HTML files
-- CSS files
-- Images
-- Icons
-- Other static resources
+* HTML files
+* CSS stylesheets
+* JavaScript files
+* Images
+* Icons
+* Other static resources
 
 ---
 
-## Step 3 – Enable Static Website Hosting
+## Step 3 – Configure Bucket Security
 
-Static Website Hosting was enabled for the bucket.
+The bucket was configured using AWS security best practices.
 
-The following documents were configured:
+The following settings were applied:
 
-- Index document: `index.html`
-- Error document: `error.html`
+* Block Public Access enabled
+* Bucket Owner Enforced object ownership
+* Bucket Versioning enabled
+* Default Server-Side Encryption (SSE-S3) enabled
 
-This generated the Amazon S3 website endpoint used to serve the website.
-
----
-
-## Step 4 – Configure Bucket Access
-
-The bucket was configured to allow public read access to website objects, enabling Amazon S3 Static Website Hosting to deliver content to users.
+These configurations help protect website assets while improving recoverability and data security.
 
 ---
 
-## Step 5 – Enable Bucket Versioning
+## Step 4 – Create the CloudFront Distribution
 
-Bucket Versioning was enabled to preserve previous versions of uploaded objects and improve recoverability during future website updates.
+An Amazon CloudFront distribution was created using the private Amazon S3 bucket as the origin.
 
----
+The distribution was configured to:
 
-## Step 6 – Enable Default Encryption
-
-Default encryption was enabled using Server-Side Encryption with Amazon S3 Managed Keys (SSE-S3).
-
-This configuration ensures that all newly uploaded objects are automatically encrypted at rest.
-
----
-
-## Step 7 – Create the CloudFront Distribution
-
-An Amazon CloudFront distribution was created using the Amazon S3 website endpoint as the origin.
-
-CloudFront was configured to cache website content at AWS edge locations, improving website performance and reducing latency.
+* Deliver website content globally.
+* Cache frequently requested objects.
+* Improve website performance.
+* Distribute content through AWS edge locations to reduce latency.
 
 ---
 
-## Step 8 – Verify Website Accessibility
+## Step 5 – Configure Origin Access Control (OAC)
 
-After deployment completed, the website was accessed through the CloudFront distribution domain to verify:
+Origin Access Control (OAC) was enabled to allow Amazon CloudFront to securely access the private Amazon S3 bucket.
 
-- Successful content delivery
-- Correct page rendering
-- Accessibility of static assets
-- End-to-end functionality
+The associated Amazon S3 bucket policy was updated to allow object access only from the authorized CloudFront distribution.
+
+---
+
+## Step 6 – Configure the Default Root Object
+
+The CloudFront distribution was configured to use:
+
+```text
+index.html
+```
+
+as the default root object, ensuring users can access the website without specifying the file name.
+
+---
+
+## Step 7 – Verify Website Accessibility
+
+After the CloudFront distribution finished deploying, the website was accessed through the CloudFront distribution domain.
+
+The following items were verified:
+
+* Successful website loading
+* Correct rendering of static assets
+* HTTPS connectivity
+* Successful content delivery through CloudFront
+* Private access to the Amazon S3 origin
 
 ---
 
 # Post-Deployment Validation
 
-The following checks were performed after deployment:
+The following validation checks were completed after deployment:
 
-- Website loaded successfully through CloudFront
-- Static assets rendered correctly
-- Bucket Versioning was enabled
-- Default encryption (SSE-S3) was enabled
-- Website content was accessible from the CloudFront distribution
-
+* Website successfully loaded through Amazon CloudFront.
+* Static assets rendered correctly.
+* Amazon S3 Block Public Access remained enabled.
+* Bucket Versioning was enabled.
+* Server-Side Encryption (SSE-S3) was enabled.
+* Origin Access Control (OAC) was successfully configured.
+* Amazon S3 remained inaccessible through direct public access.
+* CloudFront successfully retrieved content from the private Amazon S3 origin.
 ---
 
 # Deployment Outcome
 
-The completed deployment resulted in a serverless architecture capable of hosting a static website using managed AWS services.
+The completed deployment resulted in a secure, serverless architecture for hosting static website content using fully managed AWS services.
 
 The final solution provides:
 
-- Global content delivery
-- Automatic scalability
-- Encrypted object storage
-- Object versioning
-- Low operational overhead
-- Cost-effective static website hosting
+* Private Amazon S3 origin
+* Amazon CloudFront global distribution
+* Origin Access Control (OAC)
+* HTTPS content delivery
+* Edge caching
+* Bucket Versioning
+* Server-Side Encryption (SSE-S3)
+* Automatic scalability
+* Low operational overhead
+* Cost-effective hosting
 
 ---
 
+# Deployment Verification Checklist
+
+The deployment was considered successful after confirming the following:
+
+- Amazon S3 bucket created successfully.
+- Static website assets uploaded successfully.
+- Block Public Access remained enabled.
+- Bucket Versioning enabled.
+- Server-Side Encryption (SSE-S3) enabled.
+- Amazon CloudFront distribution deployed successfully.
+- Origin Access Control (OAC) configured correctly.
+- Bucket policy restricted direct access to Amazon S3.
+- Website accessible through the CloudFront distribution domain.
+- Website content delivered securely over HTTPS.
+
 # Summary
 
-The deployment process demonstrates how Amazon S3 and Amazon CloudFront can be combined to build a scalable and efficient static website hosting solution without requiring traditional web servers.
+The deployment process demonstrates how Amazon CloudFront and a private Amazon S3 bucket can be combined to build a secure, scalable, and highly available static website hosting solution.
 
+By using Origin Access Control (OAC), the architecture eliminates direct public access to Amazon S3 while allowing CloudFront to securely retrieve and deliver website content. This approach aligns with current AWS best practices for hosting static websites in production environments.
