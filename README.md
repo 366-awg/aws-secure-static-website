@@ -72,12 +72,6 @@ Private Amazon S3 Bucket
 
 ---
 
-# Live Demo
-
-The deployed website is accessible through the Amazon CloudFront distribution.
-
-> https://dozdnjx062oel.cloudfront.net
-
 # Project Highlights
 
 - Secure serverless static website architecture
